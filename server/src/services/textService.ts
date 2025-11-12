@@ -17,6 +17,7 @@ import { ERRORS, withDetails } from '../../shared/types/errors.js';
  * Créer un nouveau texte
  */
 export const createText = onCall({
+  region: 'us-central1',
   memory: '512MiB',
   timeoutSeconds: 60
 }, async (request) => {
@@ -91,6 +92,7 @@ export const createText = onCall({
  * Récupérer tous les textes d'un workspace
  */
 export const getTexts = onCall({
+  region: 'us-central1',
   memory: '512MiB',
   timeoutSeconds: 60
 }, async (request) => {
@@ -148,6 +150,7 @@ export const getTexts = onCall({
  * Supprimer un texte
  */
 export const deleteText = onCall({
+  region: 'us-central1',
   memory: '512MiB',
   timeoutSeconds: 60
 }, async (request) => {
