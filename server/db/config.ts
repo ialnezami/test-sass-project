@@ -43,7 +43,7 @@ export function getPool(): Pool {
       // - Assez long pour opérations complexes (IA, uploads)
       // - Assez court pour détecter les problèmes rapidement
       idleTimeoutMillis: 120000, // 2min permet opérations IA
-      connectionTimeoutMillis: 5000, // 5 secondes en mode démo (plus court)
+      connectionTimeoutMillis: 15000, // 15 secondes - détection rapide des problèmes réseau
       
       // Keepalive optimisé
       keepAlive: true,
@@ -53,12 +53,20 @@ export function getPool(): Pool {
       allowExitOnIdle: false // Ne ferme pas automatiquement en production
     };
 
-    // Ajouter SSL seulement si ce n'est pas le mode démo
-    if (process.env.DATABASE_URL) {
+    // ✅ SSL configuration : Désactiver SSL pour PostgreSQL local (Docker)
+    // En production avec une vraie URL DATABASE_URL distante, SSL sera activé
+    // En local avec Docker, PostgreSQL ne supporte pas SSL par défaut
+    const isLocalDocker = !process.env.DATABASE_URL || 
+                          connectionString.includes('localhost') || 
+                          connectionString.includes('127.0.0.1');
+    
+    if (!isLocalDocker) {
+      // Production : Activer SSL uniquement pour les connexions distantes
       poolConfig.ssl = {
         rejectUnauthorized: false
       };
     }
+    // Local Docker : Pas de SSL (défaut) - PostgreSQL Docker ne supporte pas SSL
 
     pool = new Pool(poolConfig);
 
