@@ -2,7 +2,7 @@ import { useCallback } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useWorkspaceContext } from '@/contexts/WorkspaceContext';
 import { TextService } from '@/services/api/textService';
-import { TextType, CreateTextType } from '../../../../shared/types';
+import { TextType, CreateTextType } from '@shared/types';
 import { queryKeys } from '@/query/queryKeys';
 
 /**

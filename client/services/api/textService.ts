@@ -1,5 +1,5 @@
 import { callSecuredFunction } from '@/services/local/authenticationService';
-import { TextType } from '../../../../shared/types';
+import { TextType } from '@shared/types';
 
 /**
  * Service de gestion des textes côté client

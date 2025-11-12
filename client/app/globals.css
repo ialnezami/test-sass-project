@@ -1,33 +1,3 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-/* Styles globaux personnalisés */
-:root {
-  --color-primary: #0349C5;
-  --color-primary-dark: #0238A0;
-}
-
-body {
-  @apply antialiased;
-}
-
-/* Utilitaires personnalisés */
-.container-custom {
-  @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
-}
-
-/* Animations */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-.animate-fade-in {
-  animation: fadeIn 0.3s ease-in-out;
-}
-

@@ -1,4 +1,4 @@
-import { ModuleComponent } from '../core/BaseModule';
+import { ModuleComponent } from './BaseModule';
 import { ModuleId } from '@/data/ai-employees';
 import ChatModule from '../ChatModule';
 
