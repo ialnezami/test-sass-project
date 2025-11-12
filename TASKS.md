@@ -85,9 +85,9 @@ Faire fonctionner le projet existant et créer un service de commentaires comple
   - [ ] Supprimer un texte
   - [ ] Vérifier que la Firebase Function est appelée
   - [ ] Vérifier que le texte disparaît de l'interface
-- [ ] **Vérifier les tokens workspace** :
-  - [ ] S'assurer que `workspaceToken` est envoyé correctement
-  - [ ] Vérifier la gestion des tokens renouvelés
+- [x] **Vérifier les tokens workspace** :
+  - [x] S'assurer que `workspaceToken` est envoyé correctement
+  - [x] Vérifier la gestion des tokens renouvelés
 
 ### 1.4 Interface Utilisateur
 
