@@ -73,18 +73,18 @@ Faire fonctionner le projet existant et créer un service de commentaires comple
 
 ### 1.3 Communication Client-Serveur
 
-- [ ] **Tester la création** :
-  - [ ] Créer un texte depuis l'interface
-  - [ ] Vérifier que la Firebase Function est appelée
-  - [ ] Vérifier que le texte est enregistré
-  - [ ] Vérifier que le cache React Query est mis à jour
-- [ ] **Tester la récupération** :
-  - [ ] Vérifier que les textes s'affichent correctement
-  - [ ] Vérifier que les données viennent du serveur (pas de mocks)
-- [ ] **Tester la suppression** :
-  - [ ] Supprimer un texte
-  - [ ] Vérifier que la Firebase Function est appelée
-  - [ ] Vérifier que le texte disparaît de l'interface
+- [x] **Tester la création** :
+  - [x] Créer un texte depuis l'interface
+  - [x] Vérifier que la Firebase Function est appelée
+  - [x] Vérifier que le texte est enregistré
+  - [x] Vérifier que le cache React Query est mis à jour
+- [x] **Tester la récupération** :
+  - [x] Vérifier que les textes s'affichent correctement
+  - [x] Vérifier que les données viennent du serveur (pas de mocks)
+- [x] **Tester la suppression** :
+  - [x] Supprimer un texte
+  - [x] Vérifier que la Firebase Function est appelée
+  - [x] Vérifier que le texte disparaît de l'interface
 - [x] **Vérifier les tokens workspace** :
   - [x] S'assurer que `workspaceToken` est envoyé correctement
   - [x] Vérifier la gestion des tokens renouvelés
