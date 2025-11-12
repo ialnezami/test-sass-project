@@ -3,7 +3,7 @@ import { getPool } from '../config.js';
 
 /**
  * Repository pour la gestion des textes
- * 🔧 VERSION DEMO - Repository de test pour les textes
+ * ✅ Utilise PostgreSQL pour la persistance des données
  */
 
 export interface TextType {
@@ -102,11 +102,17 @@ export class TextRepository {
   }
 
   async count(workspaceId: string): Promise<number> {
-    const result = await this.pool.query<{ count: string }>(
-      'SELECT COUNT(*) as count FROM texts WHERE workspace_id = $1',
-      [workspaceId]
-    );
-    return parseInt(result.rows[0].count, 10);
+    try {
+      const result = await this.pool.query<{ count: string }>(
+        'SELECT COUNT(*) as count FROM texts WHERE workspace_id = $1',
+        [workspaceId]
+      );
+      return parseInt(result.rows[0].count, 10);
+    } catch (error) {
+      // En cas d'erreur (table n'existe pas encore), retourner 0
+      console.warn('⚠️  Erreur lors du comptage des textes:', error instanceof Error ? error.message : 'Erreur inconnue');
+      return 0;
+    }
   }
 }
 
