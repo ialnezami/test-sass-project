@@ -1,0 +1,8 @@
+/**
+ * Routes pour la gestion des agents personnalisés
+ * 🔧 VERSION DEMO - Routes de test
+ */
+
+// Export vide pour l'instant - à implémenter selon les besoins
+export {};
+

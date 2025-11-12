@@ -14,7 +14,7 @@ export * from './utils/messageAutomation';
 export * from './services/stripeWebhookService';
 export * from './services/campaignService';
 export * from './services/temporaryFileService';
-export * from './services/replyCommentService.js';
+export * from './services/replyCommentService';
 export * from './services/leadService';
 export * from './services/customAgentNotificationService';
 //export * from './services/devService';
