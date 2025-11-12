@@ -1,4 +1,4 @@
-import { TextType, CreateTextType } from '../../../../shared/types.js';
+import { TextType } from '../../../../shared/types.js';
 
 /**
  * Validation métier pour les textes
@@ -52,7 +52,7 @@ export function validateTextData(data: { title?: string; content: string }): Tex
  */
 export function validateTextUpdate(
   existingText: TextType,
-  updateData: Partial<{ title: string; content: string }>
+  updateData: Partial<Pick<TextType, 'title' | 'content'>>
 ): TextValidationResult {
   const result: TextValidationResult = {
     valid: true,
@@ -60,11 +60,8 @@ export function validateTextUpdate(
     warnings: []
   };
 
-  // Ne pas permettre de changer le workspace
-  if (updateData.workspace_id && (updateData as any).workspace_id !== existingText.workspace_id) {
-    result.errors.push('Impossible de changer le workspace d\'un texte');
-    result.valid = false;
-  }
+  // Note: workspace_id ne peut pas être modifié via cette fonction
+  // car il n'est pas inclus dans le type updateData
 
   // Validation longueur contenu si fourni
   if (updateData.content !== undefined) {

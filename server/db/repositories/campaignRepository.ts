@@ -7,10 +7,11 @@ import { getPool } from '../config.js';
  */
 
 export class CampaignRepository {
-  private pool: Pool;
+  // @ts-expect-error - Reserved for future use in placeholder repository
+  private _pool: Pool;
 
   constructor() {
-    this.pool = getPool();
+    this._pool = getPool();
   }
 }
 
