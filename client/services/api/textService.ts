@@ -123,7 +123,6 @@ export class TextService {
 
   /**
    * Mettre à jour un texte
-   * ⚠️ Note: Cette fonction nécessite l'implémentation de `updateText` côté serveur
    */
   static async updateText(
     workspaceId: string,
@@ -131,8 +130,32 @@ export class TextService {
     data: Partial<{ title: string; content: string }>
   ): Promise<TextType> {
     try {
-      // ⚠️ TODO: Implémenter la Firebase Function `updateText` côté serveur
-      throw new Error('La fonction updateText n\'est pas encore implémentée côté serveur');
+      const response = await callSecuredFunction<FirebaseResponse<{ text: TextType }>>(
+        'updateText',
+        workspaceId,
+        {
+          textId,
+          title: data.title,
+          content: data.content
+        }
+      );
+      
+      // Vérifier si la réponse est une erreur
+      if (!response || 'success' in response && response.success === false) {
+        const errorResponse = response as ErrorResponse;
+        throw new Error(errorResponse.error?.message || 'Erreur lors de la mise à jour du texte');
+      }
+
+      // Extraire les données de la réponse de succès
+      const successResponse = response as SuccessResponse<{ text: TextType }> & { text: TextType };
+      const textData = successResponse.text;
+      
+      // Convertir les dates string en Date si nécessaire
+      return {
+        ...textData,
+        created_at: typeof textData.created_at === 'string' ? new Date(textData.created_at) : textData.created_at,
+        updated_at: typeof textData.updated_at === 'string' ? new Date(textData.updated_at) : textData.updated_at
+      } as TextType;
     } catch (error) {
       throw error; // ✅ Rethrow pour gestion niveau hook
     }
