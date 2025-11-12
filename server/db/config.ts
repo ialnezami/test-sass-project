@@ -1,5 +1,4 @@
-import { Pool } from '../node_modules/@types/pg';
-import { types } from '../node_modules/@types/pg';
+import { Pool, types } from 'pg';
 
 // Configuration des parsers de types PostgreSQL pour les dates
 types.setTypeParser(1114, (val: string) => new Date(val));
@@ -21,19 +20,20 @@ export function getPool(): Pool {
 
     // En local (développement)
     if (!process.env.DATABASE_URL) {
-      throw new Error('Variable d\'environnement DATABASE_URL non configurée dans .env.local');
+      // 🔧 MODE DÉMO - Utiliser PostgreSQL Docker par défaut
+      console.warn('⚠️  MODE DÉMO: DATABASE_URL non configurée - Utilisation de PostgreSQL Docker par défaut');
+      console.warn('⚠️  Assurez-vous que Docker Compose est lancé: docker-compose up -d');
+      connectionString = 'postgresql://demo:demo@localhost:5432/demo_db';
+    } else {
+      connectionString = process.env.DATABASE_URL;
     }
-    connectionString = process.env.DATABASE_URL;
 
     if (!validateDatabaseUrl(connectionString)) {
       throw new Error('URL de base de données invalide');
     }
 
-    pool = new Pool({
+    const poolConfig: any = {
       connectionString,
-      ssl: {
-        rejectUnauthorized: false
-      },
       // Configuration optimisée pour Firebase Functions
       max: 5, // Plus de connexions disponibles
       min: 1, // Garde toujours 1 connexion ouverte
@@ -43,7 +43,7 @@ export function getPool(): Pool {
       // - Assez long pour opérations complexes (IA, uploads)
       // - Assez court pour détecter les problèmes rapidement
       idleTimeoutMillis: 120000, // 2min permet opérations IA
-      connectionTimeoutMillis: 15000, // 15 secondes - détection rapide des problèmes réseau
+      connectionTimeoutMillis: 5000, // 5 secondes en mode démo (plus court)
       
       // Keepalive optimisé
       keepAlive: true,
@@ -51,10 +51,25 @@ export function getPool(): Pool {
       
       // Permet la sortie propre
       allowExitOnIdle: false // Ne ferme pas automatiquement en production
-    });
+    };
+
+    // Ajouter SSL seulement si ce n'est pas le mode démo
+    if (process.env.DATABASE_URL) {
+      poolConfig.ssl = {
+        rejectUnauthorized: false
+      };
+    }
+
+    pool = new Pool(poolConfig);
 
     // Gestion des erreurs avec recréation automatique du pool
     pool.on('error', (err, client) => {
+      // En mode démo, ne pas bloquer sur les erreurs de connexion
+      if (!process.env.DATABASE_URL) {
+        console.warn('⚠️  MODE DÉMO: Erreur de connexion PostgreSQL ignorée:', err.message);
+        console.warn('⚠️  Les repositories continueront de fonctionner en mode démo (données vides)');
+        return; // Ne pas recréer le pool en mode démo
+      }
       console.error('🔴 Erreur PostgreSQL Pool:', err.message);
       console.error('🔄 Pool sera recréé au prochain appel');
       pool = undefined; // Force recréation au prochain appel
