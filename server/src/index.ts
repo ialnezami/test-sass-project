@@ -1,3 +1,6 @@
+// ✅ Importer main.ts en premier pour initialiser Firebase Admin
+import './main';
+
 export * from './services/oauthService';
 export * from './utils/authWorkspace';
 export * from './services/documentService';

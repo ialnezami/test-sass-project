@@ -30,22 +30,33 @@ export function useComments(textId?: string) {
     mutationFn: (data: CreateCommentType) =>
       CommentService.createComment(currentWorkspaceId, data),
     onSuccess: (newComment) => {
-      // Ajouter le nouveau commentaire au cache
-      const queryKey = newComment.text_id 
-        ? queryKeys.comments.byText(currentWorkspaceId, newComment.text_id)
+      // ✅ Utiliser le textId du hook (celui de la requête actuelle)
+      const currentQueryKey = textId 
+        ? queryKeys.comments.byText(currentWorkspaceId, textId)
         : queryKeys.comments.all(currentWorkspaceId);
       
+      // Ajouter le nouveau commentaire au cache de la requête actuelle
       queryClient.setQueryData<CommentType[]>(
-        queryKey,
+        currentQueryKey,
         (old) => old ? [newComment, ...old] : [newComment]
       );
 
-      // Invalider aussi la clé générale si on filtre par text_id
-      if (textId) {
-        queryClient.invalidateQueries({
-          queryKey: queryKeys.comments.all(currentWorkspaceId)
-        });
+      // ✅ Invalider aussi la clé correspondant au text_id du commentaire créé
+      // pour s'assurer que toutes les vues sont à jour
+      if (newComment.text_id) {
+        const commentQueryKey = queryKeys.comments.byText(currentWorkspaceId, newComment.text_id);
+        // Si c'est une clé différente de celle actuelle, invalider pour forcer le refetch
+        if (JSON.stringify(commentQueryKey) !== JSON.stringify(currentQueryKey)) {
+          queryClient.invalidateQueries({
+            queryKey: commentQueryKey
+          });
+        }
       }
+
+      // Invalider aussi la clé générale pour s'assurer de la cohérence
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.comments.all(currentWorkspaceId)
+      });
     }
   });
 

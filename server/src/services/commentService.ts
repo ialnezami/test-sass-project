@@ -17,6 +17,7 @@ import { ERRORS, withDetails } from '../../shared/types/errors.js';
  * Créer un nouveau commentaire
  */
 export const createComment = onCall({
+  region: 'us-central1',
   memory: '512MiB',
   timeoutSeconds: 60
 }, async (request) => {
@@ -92,6 +93,7 @@ export const createComment = onCall({
  * Récupérer tous les commentaires d'un workspace
  */
 export const getComments = onCall({
+  region: 'us-central1',
   memory: '512MiB',
   timeoutSeconds: 60
 }, async (request) => {
@@ -158,6 +160,7 @@ export const getComments = onCall({
  * Mettre à jour un commentaire
  */
 export const updateComment = onCall({
+  region: 'us-central1',
   memory: '512MiB',
   timeoutSeconds: 60
 }, async (request) => {
@@ -241,6 +244,7 @@ export const updateComment = onCall({
  * Supprimer un commentaire
  */
 export const deleteComment = onCall({
+  region: 'us-central1',
   memory: '512MiB',
   timeoutSeconds: 60
 }, async (request) => {

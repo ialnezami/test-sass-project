@@ -187,10 +187,10 @@ export default function DashboardPage() {
                   const showComments = textWithComments === text.id;
                   
                   return (
-                    <div key={text.id} className="border border-gray-200 rounded-lg p-4 hover:border-gray-300 transition-colors">
-                      <div className="flex justify-between items-start mb-2">
-                        <h3 className="font-medium text-gray-900">{text.title}</h3>
-                        <div className="flex gap-2">
+                  <div key={text.id} className="border border-gray-200 rounded-lg p-4 hover:border-gray-300 transition-colors">
+                    <div className="flex justify-between items-start mb-2">
+                      <h3 className="font-medium text-gray-900">{text.title}</h3>
+                      <div className="flex gap-2">
                           <button
                             onClick={() => handleToggleComments(text.id)}
                             className="text-green-600 hover:text-green-800 p-1 transition-colors"
@@ -198,28 +198,28 @@ export default function DashboardPage() {
                           >
                             <RiChat3Line className="w-4 h-4" />
                           </button>
-                          <button
-                            onClick={() => handleEditClick(text)}
-                            disabled={isUpdating || isDeleting}
-                            className="text-blue-600 hover:text-blue-800 p-1 transition-colors disabled:opacity-50"
-                            title="Modifier"
-                          >
-                            <RiEditLine className="w-4 h-4" />
-                          </button>
-                          <button
-                            onClick={() => handleDeleteClick(text)}
-                            disabled={isDeleting || isUpdating}
-                            className="text-red-600 hover:text-red-800 p-1 transition-colors disabled:opacity-50"
-                            title="Supprimer"
-                          >
-                            <RiDeleteBinLine className="w-4 h-4" />
-                          </button>
-                        </div>
+                        <button
+                          onClick={() => handleEditClick(text)}
+                          disabled={isUpdating || isDeleting}
+                          className="text-blue-600 hover:text-blue-800 p-1 transition-colors disabled:opacity-50"
+                          title="Modifier"
+                        >
+                          <RiEditLine className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => handleDeleteClick(text)}
+                          disabled={isDeleting || isUpdating}
+                          className="text-red-600 hover:text-red-800 p-1 transition-colors disabled:opacity-50"
+                          title="Supprimer"
+                        >
+                          <RiDeleteBinLine className="w-4 h-4" />
+                        </button>
                       </div>
-                      <p className="text-gray-600 text-sm mb-2">{text.content}</p>
+                    </div>
+                    <p className="text-gray-600 text-sm mb-2">{text.content}</p>
                       <p className="text-xs text-gray-400 mb-3">
-                        Créé le {new Date(text.created_at).toLocaleDateString('fr-FR')} à {new Date(text.created_at).toLocaleTimeString('fr-FR')}
-                      </p>
+                      Créé le {new Date(text.created_at).toLocaleDateString('fr-FR')} à {new Date(text.created_at).toLocaleTimeString('fr-FR')}
+                    </p>
 
                       {/* Section Commentaires */}
                       {showComments && (
@@ -228,7 +228,7 @@ export default function DashboardPage() {
                           onClose={() => handleToggleComments(text.id)} 
                         />
                       )}
-                    </div>
+                  </div>
                   );
                 })
               )}
