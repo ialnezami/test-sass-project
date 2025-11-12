@@ -1,7 +1,8 @@
 import { useCallback } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useWorkspaceContext } from '@/contexts/WorkspaceContext';
-import { TextService, TextType, CreateTextRequest } from '@/services/api/textService';
+import { TextService } from '@/services/api/textService';
+import { TextType, CreateTextType } from '../../../../shared/types';
 import { queryKeys } from '@/query/queryKeys';
 
 /**
@@ -24,10 +25,8 @@ export function useTexts() {
 
   // ✅ Mutation création avec gestion cache
   const createMutation = useMutation({
-    mutationFn: (data: CreateTextRequest) => {
-      const textService = new TextService();
-      return textService.createText(currentWorkspaceId, data);
-    },
+    mutationFn: (data: { title?: string; content: string }) =>
+      TextService.createText(currentWorkspaceId, data),
     onSuccess: (newText) => {
       // Ajouter le nouveau texte au cache
       queryClient.setQueryData<TextType[]>(
@@ -52,7 +51,7 @@ export function useTexts() {
 
   // ✅ Mutation mise à jour avec gestion cache
   const updateMutation = useMutation({
-    mutationFn: ({ textId, data }: { textId: string; data: Partial<CreateTextRequest> }) =>
+    mutationFn: ({ textId, data }: { textId: string; data: Partial<{ title: string; content: string }> }) =>
       TextService.updateText(currentWorkspaceId, textId, data),
     onSuccess: (updatedText) => {
       // Mettre à jour le texte dans le cache
@@ -66,7 +65,7 @@ export function useTexts() {
   });
 
   // ✅ Fonctions utilitaires avec useCallback
-  const createText = useCallback((data: CreateTextRequest) => {
+  const createText = useCallback((data: { title?: string; content: string }) => {
     createMutation.mutate(data);
   }, [createMutation]);
 
@@ -74,7 +73,7 @@ export function useTexts() {
     deleteMutation.mutate(textId);
   }, [deleteMutation]);
 
-  const updateText = useCallback((textId: string, data: Partial<CreateTextRequest>) => {
+  const updateText = useCallback((textId: string, data: Partial<{ title: string; content: string }>) => {
     updateMutation.mutate({ textId, data });
   }, [updateMutation]);
 

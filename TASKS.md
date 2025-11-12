@@ -36,19 +36,19 @@ Faire fonctionner le projet existant et créer un service de commentaires comple
 
 **Fichier : `client/services/api/textService.ts`**
 
-- [ ] **Supprimer les mocks** : Remplacer toutes les fonctions fantômes par de vrais appels API
-- [ ] **Utiliser `callSecuredFunction`** : Importer et utiliser depuis `@/services/local/authenticationService`
-- [ ] **Méthodes statiques uniquement** : Toutes les méthodes doivent être `static`
-- [ ] **Types partagés** : 
-  - [ ] Supprimer les interfaces locales (`TextType`, `CreateTextRequest`, etc.)
-  - [ ] Importer depuis `shared/types.ts` : `TextType`, `CreateTextType`
-- [ ] **Pattern workspace** : `workspaceId` TOUJOURS en premier paramètre
-- [ ] **Implémenter les méthodes** :
-  - [ ] `static async createText(workspaceId: string, data: CreateTextType): Promise<TextType>`
-  - [ ] `static async getTexts(workspaceId: string): Promise<TextType[]>`
-  - [ ] `static async deleteText(workspaceId: string, textId: string): Promise<boolean>`
-  - [ ] `static async updateText(workspaceId: string, textId: string, data: Partial<CreateTextType>): Promise<TextType>`
-- [ ] **Appels Firebase** : Chaque méthode doit appeler la Firebase Function correspondante via `callSecuredFunction`
+- [x] **Supprimer les mocks** : Remplacer toutes les fonctions fantômes par de vrais appels API
+- [x] **Utiliser `callSecuredFunction`** : Importer et utiliser depuis `@/services/local/authenticationService`
+- [x] **Méthodes statiques uniquement** : Toutes les méthodes doivent être `static`
+- [x] **Types partagés** : 
+  - [x] Supprimer les interfaces locales (`TextType`, `CreateTextRequest`, etc.)
+  - [x] Importer depuis `shared/types.ts` : `TextType`, `CreateTextType`
+- [x] **Pattern workspace** : `workspaceId` TOUJOURS en premier paramètre
+- [x] **Implémenter les méthodes** :
+  - [x] `static async createText(workspaceId: string, data: CreateTextType): Promise<TextType>`
+  - [x] `static async getTexts(workspaceId: string): Promise<TextType[]>`
+  - [x] `static async deleteText(workspaceId: string, textId: string): Promise<boolean>`
+  - [x] `static async updateText(workspaceId: string, textId: string, data: Partial<CreateTextType>): Promise<TextType>` (⚠️ Nécessite implémentation serveur)
+- [x] **Appels Firebase** : Chaque méthode doit appeler la Firebase Function correspondante via `callSecuredFunction`
 
 ### 1.2 Correction du `textService` côté SERVEUR
 

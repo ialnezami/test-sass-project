@@ -1,171 +1,140 @@
 import { callSecuredFunction } from '@/services/local/authenticationService';
+import { TextType } from '../../../../shared/types';
 
 /**
  * Service de gestion des textes côté client
- * 🔧 VERSION DEMO - Service de test pour enregistrer et récupérer des textes
+ * ✅ Service conforme à l'architecture Agentova
  */
 
-export interface TextType {
-  id: string;
-  workspace_id: string;
-  title: string;
-  content: string;
-  created_by: string;
-  created_at: string;
-  updated_at: string;
+interface SuccessResponse<T> {
+  success: true;
+  workspace_tokens?: Record<string, unknown>;
 }
 
-export interface CreateTextRequest {
-  title?: string;
-  content: string;
+interface ErrorResponse {
+  success: false;
+  error: {
+    message?: string;
+    code?: string;
+  };
 }
 
-export interface TextsResponse {
-  texts: TextType[];
-}
-
-export interface TextResponse {
-  text: TextType;
-}
+type FirebaseResponse<T> = (SuccessResponse<T> & T) | ErrorResponse;
 
 export class TextService {
   /**
    * Créer un nouveau texte
-   * 🔧 VERSION DEMO - Fonction fantôme qui simule la création
    */
-  async createText(
+  static async createText(
     workspaceId: string,
-    data: CreateTextRequest
+    data: { title?: string; content: string }
   ): Promise<TextType> {
     try {
-      // 🔧 FONCTION FANTÔME - Simule un appel API
-      console.log('📝 [DEMO] Création texte:', data);
+      const response = await callSecuredFunction<FirebaseResponse<{ text: TextType }>>(
+        'createText',
+        workspaceId,
+        {
+          title: data.title,
+          content: data.content
+        }
+      );
+
+      // Vérifier si la réponse est une erreur
+      if (!response || 'success' in response && response.success === false) {
+        const errorResponse = response as ErrorResponse;
+        throw new Error(errorResponse.error?.message || 'Erreur lors de la création du texte');
+      }
+
+      // Extraire les données de la réponse de succès
+      const successResponse = response as SuccessResponse<{ text: TextType }> & { text: TextType };
+      const textData = successResponse.text;
       
-      // Simuler un délai d'API
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      // Retourner un texte simulé
-      const mockText: TextType = {
-        id: `text-${Date.now()}`,
-        workspace_id: workspaceId,
-        title: data.title || 'Sans titre',
-        content: data.content,
-        created_by: 'demo-user-123',
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      };
-      
-      return mockText;
+      // Convertir les dates string en Date si nécessaire
+      return {
+        ...textData,
+        created_at: typeof textData.created_at === 'string' ? new Date(textData.created_at) : textData.created_at,
+        updated_at: typeof textData.updated_at === 'string' ? new Date(textData.updated_at) : textData.updated_at
+      } as TextType;
     } catch (error) {
-      console.error('Erreur création texte:', error);
-      throw error;
+      throw error; // ✅ Rethrow pour gestion niveau hook
     }
   }
 
   /**
    * Récupérer tous les textes d'un workspace
-   * 🔧 VERSION DEMO - Fonction fantôme qui simule la récupération
    */
   static async getTexts(workspaceId: string): Promise<TextType[]> {
     try {
-      // 🔧 FONCTION FANTÔME - Simule un appel API
-      console.log('📋 [DEMO] Récupération textes pour workspace:', workspaceId);
+      const response = await callSecuredFunction<FirebaseResponse<{ texts: TextType[] }>>(
+        'getTexts',
+        workspaceId
+      );
+
+      // Vérifier si la réponse est une erreur
+      if (!response || 'success' in response && response.success === false) {
+        const errorResponse = response as ErrorResponse;
+        throw new Error(errorResponse.error?.message || 'Erreur lors de la récupération des textes');
+      }
+
+      // Extraire les données de la réponse de succès
+      const successResponse = response as SuccessResponse<{ texts: TextType[] }> & { texts: TextType[] };
+      const textsData = successResponse.texts || [];
       
-      // Simuler un délai d'API
-      await new Promise(resolve => setTimeout(resolve, 300));
-      
-      // Retourner des textes simulés
-      const mockTexts: TextType[] = [
-        {
-          id: 'text-1',
-          workspace_id: workspaceId,
-          title: 'Premier texte de démonstration',
-          content: 'Ceci est un exemple de texte enregistré dans le système. Il sert à tester l\'architecture et les patterns de développement.',
-          created_by: 'demo-user-123',
-          created_at: new Date(Date.now() - 86400000).toISOString(), // Hier
-          updated_at: new Date(Date.now() - 86400000).toISOString()
-        },
-        {
-          id: 'text-2',
-          workspace_id: workspaceId,
-          title: 'Deuxième exemple',
-          content: 'Un autre texte pour montrer la liste et les fonctionnalités CRUD de base.',
-          created_by: 'demo-user-123',
-          created_at: new Date(Date.now() - 3600000).toISOString(), // Il y a 1h
-          updated_at: new Date(Date.now() - 3600000).toISOString()
-        },
-        {
-          id: 'text-3',
-          workspace_id: workspaceId,
-          title: 'Test technique',
-          content: 'Ce texte démontre l\'utilisation des services, hooks et composants selon les règles d\'architecture Agentova.',
-          created_by: 'demo-user-123',
-          created_at: new Date().toISOString(), // Maintenant
-          updated_at: new Date().toISOString()
-        }
-      ];
-      
-      return mockTexts;
+      // Convertir les dates string en Date si nécessaire
+      return textsData.map((text) => ({
+        ...text,
+        created_at: typeof text.created_at === 'string' ? new Date(text.created_at) : text.created_at,
+        updated_at: typeof text.updated_at === 'string' ? new Date(text.updated_at) : text.updated_at
+      })) as TextType[];
     } catch (error) {
-      console.error('Erreur récupération textes:', error);
-      throw error;
+      throw error; // ✅ Rethrow pour gestion niveau hook
     }
   }
 
   /**
    * Supprimer un texte
-   * 🔧 VERSION DEMO - Fonction fantôme qui simule la suppression
    */
   static async deleteText(
     workspaceId: string,
     textId: string
   ): Promise<boolean> {
     try {
-      // 🔧 FONCTION FANTÔME - Simule un appel API
-      console.log('🗑️ [DEMO] Suppression texte:', textId);
-      
-      // Simuler un délai d'API
-      await new Promise(resolve => setTimeout(resolve, 400));
-      
-      // Toujours réussir en mode demo
-      return true;
+      const response = await callSecuredFunction<FirebaseResponse<{ deleted: boolean }>>(
+        'deleteText',
+        workspaceId,
+        {
+          textId
+        }
+      );
+
+      // Vérifier si la réponse est une erreur
+      if (!response || 'success' in response && response.success === false) {
+        const errorResponse = response as ErrorResponse;
+        throw new Error(errorResponse.error?.message || 'Erreur lors de la suppression du texte');
+      }
+
+      // Extraire les données de la réponse de succès
+      const successResponse = response as SuccessResponse<{ deleted: boolean }> & { deleted: boolean };
+      return successResponse.deleted ?? true;
     } catch (error) {
-      console.error('Erreur suppression texte:', error);
-      throw error;
+      throw error; // ✅ Rethrow pour gestion niveau hook
     }
   }
 
   /**
    * Mettre à jour un texte
-   * 🔧 VERSION DEMO - Fonction fantôme qui simule la mise à jour
+   * ⚠️ Note: Cette fonction nécessite l'implémentation de `updateText` côté serveur
    */
   static async updateText(
     workspaceId: string,
     textId: string,
-    data: Partial<CreateTextRequest>
+    data: Partial<{ title: string; content: string }>
   ): Promise<TextType> {
     try {
-      // 🔧 FONCTION FANTÔME - Simule un appel API
-      console.log('✏️ [DEMO] Mise à jour texte:', textId, data);
-      
-      // Simuler un délai d'API
-      await new Promise(resolve => setTimeout(resolve, 450));
-      
-      // Retourner un texte mis à jour simulé
-      const mockUpdatedText: TextType = {
-        id: textId,
-        workspace_id: workspaceId,
-        title: data.title || 'Titre mis à jour',
-        content: data.content || 'Contenu mis à jour',
-        created_by: 'demo-user-123',
-        created_at: new Date(Date.now() - 86400000).toISOString(),
-        updated_at: new Date().toISOString() // Maintenant
-      };
-      
-      return mockUpdatedText;
+      // ⚠️ TODO: Implémenter la Firebase Function `updateText` côté serveur
+      throw new Error('La fonction updateText n\'est pas encore implémentée côté serveur');
     } catch (error) {
-      console.error('Erreur mise à jour texte:', error);
-      throw error;
+      throw error; // ✅ Rethrow pour gestion niveau hook
     }
   }
 }
