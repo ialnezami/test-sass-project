@@ -1,6 +1,5 @@
 import './globals.css';
-import { AuthProvider } from '@/contexts/AuthContext';
-import { QueryProvider } from '@/providers/QueryProvider';
+import { AppProviders } from '@/providers/AppProviders';
 
 export default function RootLayout({
   children,
@@ -14,11 +13,9 @@ export default function RootLayout({
         <meta name="theme-color" content="#0349C5" />
       </head>
       <body className="antialiased bg-gray-100">
-        <QueryProvider>
-          <AuthProvider>
-            {children}
-          </AuthProvider>
-        </QueryProvider>
+        <AppProviders>
+          {children}
+        </AppProviders>
       </body>
     </html>
   );
