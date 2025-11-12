@@ -4,17 +4,19 @@ import React, { useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { AI_EMPLOYEES } from '@/data/ai-employees';
 import { useTexts } from '@/hooks/useTexts';
-import { RiAddLine, RiDeleteBinLine } from 'react-icons/ri';
+import { RiAddLine, RiDeleteBinLine, RiEditLine } from 'react-icons/ri';
 import { ConfirmModal } from '@/components/ui/ConfirmModal';
+import { EditTextModal } from '@/components/ui/EditTextModal';
 import { TextType } from '@shared/types';
 
 export default function DashboardPage() {
   const router = useRouter();
-  const { texts, createText, deleteText, isLoading, isCreating, isDeleting } = useTexts();
+  const { texts, createText, updateText, deleteText, isLoading, isCreating, isUpdating, isDeleting } = useTexts();
   
   const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState({ title: '', content: '' });
   const [textToDelete, setTextToDelete] = useState<TextType | null>(null);
+  const [textToEdit, setTextToEdit] = useState<TextType | null>(null);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -42,6 +44,20 @@ export default function DashboardPage() {
 
   const handleCancelDelete = useCallback(() => {
     setTextToDelete(null);
+  }, []);
+
+  // ✅ Handlers pour l'édition
+  const handleEditClick = useCallback((text: TextType) => {
+    setTextToEdit(text);
+  }, []);
+
+  const handleSaveEdit = useCallback((textId: string, data: { title?: string; content: string }) => {
+    updateText(textId, data);
+    setTextToEdit(null);
+  }, [updateText]);
+
+  const handleCancelEdit = useCallback(() => {
+    setTextToEdit(null);
   }, []);
 
   return (
@@ -166,8 +182,16 @@ export default function DashboardPage() {
                       <h3 className="font-medium text-gray-900">{text.title}</h3>
                       <div className="flex gap-2">
                         <button
+                          onClick={() => handleEditClick(text)}
+                          disabled={isUpdating || isDeleting}
+                          className="text-blue-600 hover:text-blue-800 p-1 transition-colors disabled:opacity-50"
+                          title="Modifier"
+                        >
+                          <RiEditLine className="w-4 h-4" />
+                        </button>
+                        <button
                           onClick={() => handleDeleteClick(text)}
-                          disabled={isDeleting}
+                          disabled={isDeleting || isUpdating}
                           className="text-red-600 hover:text-red-800 p-1 transition-colors disabled:opacity-50"
                           title="Supprimer"
                         >
@@ -202,6 +226,15 @@ export default function DashboardPage() {
         onCancel={handleCancelDelete}
         variant="danger"
         isLoading={isDeleting}
+      />
+
+      {/* Modale d'édition de texte */}
+      <EditTextModal
+        isOpen={textToEdit !== null}
+        text={textToEdit}
+        onSave={handleSaveEdit}
+        onCancel={handleCancelEdit}
+        isLoading={isUpdating}
       />
     </div>
   );

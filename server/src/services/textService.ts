@@ -207,3 +207,101 @@ export const deleteText = onCall({
     return handleError(error);
   }
 });
+
+/**
+ * Mettre à jour un texte
+ */
+export const updateText = onCall({
+  region: 'us-central1',
+  memory: '512MiB',
+  timeoutSeconds: 60
+}, async (request) => {
+  try {
+    // ✅ 1. Validation auth OBLIGATOIRE
+    const authResponse = validateAuth(request.auth);
+    if (!isSuccess(authResponse)) return authResponse;
+    const uid = authResponse.user;
+
+    // ✅ 2. Extraction et validation params
+    const { workspaceToken, textId, title, content } = request.data;
+    const validationResponse = validateRequiredFields(request.data, [
+      'workspaceToken', 'textId'
+    ]);
+    if (!isSuccess(validationResponse)) return validationResponse;
+
+    // ✅ 3. Validation workspace + rôles
+    const tokenValidation = await verifyWorkspaceToken(
+      workspaceToken, 
+      uid, 
+      WORKSPACE_ROLES.EDITOR // Rôle requis pour modifier des textes
+    );
+    const validationResult = isValidWorkspaceToken(tokenValidation);
+    if (!isSuccess(validationResult)) return validationResult;
+    const { workspace_id, workspace_tokens } = validationResult;
+    const response = createResponseWithTokens(workspace_tokens);
+
+    // ✅ 4. Validation métier séparée
+    // Vérifier que le texte existe et appartient au workspace
+    const existingText = await getTextRepository().getById(textId, workspace_id);
+    if (!existingText) {
+      return response.error(withDetails(ERRORS.NOT_FOUND, {
+        message: 'Texte non trouvé'
+      }));
+    }
+
+    // Valider les nouvelles données si fournies
+    const updateData: Partial<{ title: string; content: string }> = {};
+    if (title !== undefined) {
+      updateData.title = title?.trim() || 'Sans titre';
+    }
+    if (content !== undefined) {
+      updateData.content = content.trim();
+    }
+
+    // Valider les données si du contenu est fourni
+    if (updateData.content !== undefined || updateData.title !== undefined) {
+      const textValidation = validateTextData({
+        title: updateData.title || existingText.title,
+        content: updateData.content || existingText.content
+      });
+      if (!textValidation.valid) {
+        return response.error(withDetails(ERRORS.INVALID_INPUT, {
+          message: textValidation.errors.join(', '),
+          errors: textValidation.errors,
+          warnings: textValidation.warnings
+        }));
+      }
+    }
+
+    // ✅ 5. Logique métier via repository
+    const updatedText = await getTextRepository().update(textId, workspace_id, updateData);
+    
+    if (!updatedText) {
+      return response.error(withDetails(ERRORS.NOT_FOUND, {
+        message: 'Erreur lors de la mise à jour du texte'
+      }));
+    }
+
+    // ✅ 6. Logging succès structuré
+    logger.info('Texte mis à jour avec succès', {
+      workspace_id,
+      user_id: uid,
+      text_id: textId,
+      action: 'update_text'
+    });
+
+    // ✅ 7. Réponse standardisée
+    return response.success({ text: updatedText });
+    
+  } catch (error) {
+    logger.error('Erreur dans updateText', {
+      error: error instanceof Error ? error.message : 'Erreur inconnue',
+      stack: error instanceof Error ? error.stack : undefined,
+      context: {
+        workspace_id: request.data?.workspaceToken ? 'present' : 'missing',
+        text_id: request.data?.textId
+      }
+    });
+    return handleError(error);
+  }
+});
