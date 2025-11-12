@@ -38,7 +38,7 @@ export class TextService {
           content: data.content
         }
       );
-
+      
       // Vérifier si la réponse est une erreur
       if (!response || 'success' in response && response.success === false) {
         const errorResponse = response as ErrorResponse;
@@ -69,7 +69,7 @@ export class TextService {
         'getTexts',
         workspaceId
       );
-
+      
       // Vérifier si la réponse est une erreur
       if (!response || 'success' in response && response.success === false) {
         const errorResponse = response as ErrorResponse;
@@ -106,7 +106,7 @@ export class TextService {
           textId
         }
       );
-
+      
       // Vérifier si la réponse est une erreur
       if (!response || 'success' in response && response.success === false) {
         const errorResponse = response as ErrorResponse;

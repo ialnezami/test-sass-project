@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { storeTokens, getStoredTokens, WorkspaceTokenMap } from '@/services/local/authenticationService';
 
 // ========================== INTERFACES ==========================
 
@@ -87,6 +88,28 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
     await new Promise(resolve => setTimeout(resolve, 500));
     return MOCK_WORKSPACES;
   };
+
+  // ✅ INITIALISATION DES TOKENS WORKSPACE
+  useEffect(() => {
+    if (isAuthenticated) {
+      // Initialiser les tokens pour tous les workspaces si pas déjà présents
+      const existingTokens = getStoredTokens();
+      const tokensToStore: WorkspaceTokenMap = { ...existingTokens };
+      
+      MOCK_WORKSPACES.forEach(workspace => {
+        if (!tokensToStore[workspace.id]) {
+          // Créer un token par défaut pour chaque workspace
+          tokensToStore[workspace.id] = {
+            role: workspace.id === 'demo-workspace-123' ? 'admin' : 'editor',
+            token: `demo-token-${workspace.id}`
+          };
+        }
+      });
+      
+      storeTokens(tokensToStore);
+      console.log('✅ [DEMO] Tokens workspace initialisés');
+    }
+  }, [isAuthenticated]);
 
   // ✅ INITIALISATION AUTOMATIQUE
   useEffect(() => {
