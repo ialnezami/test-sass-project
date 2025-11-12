@@ -4,9 +4,10 @@ import React, { useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { AI_EMPLOYEES } from '@/data/ai-employees';
 import { useTexts } from '@/hooks/useTexts';
-import { RiAddLine, RiDeleteBinLine, RiEditLine } from 'react-icons/ri';
+import { RiAddLine, RiDeleteBinLine, RiEditLine, RiChat3Line } from 'react-icons/ri';
 import { ConfirmModal } from '@/components/ui/ConfirmModal';
 import { EditTextModal } from '@/components/ui/EditTextModal';
+import { TextComments } from '@/components/TextComments';
 import { TextType } from '@shared/types';
 
 export default function DashboardPage() {
@@ -17,6 +18,7 @@ export default function DashboardPage() {
   const [formData, setFormData] = useState({ title: '', content: '' });
   const [textToDelete, setTextToDelete] = useState<TextType | null>(null);
   const [textToEdit, setTextToEdit] = useState<TextType | null>(null);
+  const [textWithComments, setTextWithComments] = useState<string | null>(null);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -59,6 +61,11 @@ export default function DashboardPage() {
   const handleCancelEdit = useCallback(() => {
     setTextToEdit(null);
   }, []);
+
+  // ✅ Handlers pour les commentaires
+  const handleToggleComments = useCallback((textId: string) => {
+    setTextWithComments(textWithComments === textId ? null : textId);
+  }, [textWithComments]);
 
   return (
     <div className="min-h-screen bg-gray-50 p-8">
@@ -176,35 +183,54 @@ export default function DashboardPage() {
                   <p className="text-sm">Créez votre premier texte pour commencer !</p>
                 </div>
               ) : (
-                texts.map((text) => (
-                  <div key={text.id} className="border border-gray-200 rounded-lg p-4 hover:border-gray-300 transition-colors">
-                    <div className="flex justify-between items-start mb-2">
-                      <h3 className="font-medium text-gray-900">{text.title}</h3>
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => handleEditClick(text)}
-                          disabled={isUpdating || isDeleting}
-                          className="text-blue-600 hover:text-blue-800 p-1 transition-colors disabled:opacity-50"
-                          title="Modifier"
-                        >
-                          <RiEditLine className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => handleDeleteClick(text)}
-                          disabled={isDeleting || isUpdating}
-                          className="text-red-600 hover:text-red-800 p-1 transition-colors disabled:opacity-50"
-                          title="Supprimer"
-                        >
-                          <RiDeleteBinLine className="w-4 h-4" />
-                        </button>
+                texts.map((text) => {
+                  const showComments = textWithComments === text.id;
+                  
+                  return (
+                    <div key={text.id} className="border border-gray-200 rounded-lg p-4 hover:border-gray-300 transition-colors">
+                      <div className="flex justify-between items-start mb-2">
+                        <h3 className="font-medium text-gray-900">{text.title}</h3>
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => handleToggleComments(text.id)}
+                            className="text-green-600 hover:text-green-800 p-1 transition-colors"
+                            title="Commentaires"
+                          >
+                            <RiChat3Line className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => handleEditClick(text)}
+                            disabled={isUpdating || isDeleting}
+                            className="text-blue-600 hover:text-blue-800 p-1 transition-colors disabled:opacity-50"
+                            title="Modifier"
+                          >
+                            <RiEditLine className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => handleDeleteClick(text)}
+                            disabled={isDeleting || isUpdating}
+                            className="text-red-600 hover:text-red-800 p-1 transition-colors disabled:opacity-50"
+                            title="Supprimer"
+                          >
+                            <RiDeleteBinLine className="w-4 h-4" />
+                          </button>
+                        </div>
                       </div>
+                      <p className="text-gray-600 text-sm mb-2">{text.content}</p>
+                      <p className="text-xs text-gray-400 mb-3">
+                        Créé le {new Date(text.created_at).toLocaleDateString('fr-FR')} à {new Date(text.created_at).toLocaleTimeString('fr-FR')}
+                      </p>
+
+                      {/* Section Commentaires */}
+                      {showComments && (
+                        <TextComments 
+                          textId={text.id} 
+                          onClose={() => handleToggleComments(text.id)} 
+                        />
+                      )}
                     </div>
-                    <p className="text-gray-600 text-sm mb-2">{text.content}</p>
-                    <p className="text-xs text-gray-400">
-                      Créé le {new Date(text.created_at).toLocaleDateString('fr-FR')} à {new Date(text.created_at).toLocaleTimeString('fr-FR')}
-                    </p>
-                  </div>
-                ))
+                  );
+                })
               )}
             </div>
           </div>

@@ -4,6 +4,7 @@ export * from './services/documentService';
 export * from './services/profileService';
 export * from './services/sessionService';
 export * from './services/textService';
+export * from './services/commentService';
 export * from './services/customAgentService';
 export * from './services/workspaceService';
 export * from './services/imageGenerationService';

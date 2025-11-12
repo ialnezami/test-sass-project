@@ -13,6 +13,7 @@ import { ReplyCommentRepository } from './replyCommentRepository';
 import { LeadRepository } from './leadRepository';
 import { InboxStatesRepository } from './inboxStatesRepository';
 import { TextRepository } from './textRepository';
+import { CommentRepository } from './commentRepository';
 
 // Singleton instances - on les déclare comme undefined pour éviter l'initialisation au build
 let automationDiscussionRepo: AutomationDiscussionRepository | undefined;
@@ -30,6 +31,7 @@ let replyCommentRepository: ReplyCommentRepository | null = null;
 let leadRepository: LeadRepository | undefined;
 let inboxStatesRepo: InboxStatesRepository | undefined;
 let textRepo: TextRepository | undefined;
+let commentRepo: CommentRepository | undefined;
 
 // Getters with lazy initialization
 export function getAutomationDiscussionRepository(): AutomationDiscussionRepository {
@@ -137,6 +139,13 @@ export function getTextRepository(): TextRepository {
   return textRepo;
 }
 
+export function getCommentRepository(): CommentRepository {
+  if (!commentRepo) {
+    commentRepo = new CommentRepository();
+  }
+  return commentRepo;
+}
+
 // Cleanup function for testing purposes
 export function clearRepositories(): void {
   automationDiscussionRepo = undefined;
@@ -154,6 +163,7 @@ export function clearRepositories(): void {
   leadRepository = undefined;
   inboxStatesRepo = undefined;
   textRepo = undefined;
+  commentRepo = undefined;
 } 
 
 
