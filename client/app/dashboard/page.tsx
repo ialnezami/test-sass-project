@@ -1,10 +1,12 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { AI_EMPLOYEES } from '@/data/ai-employees';
 import { useTexts } from '@/hooks/useTexts';
-import { RiAddLine, RiDeleteBinLine, RiEditLine } from 'react-icons/ri';
+import { RiAddLine, RiDeleteBinLine } from 'react-icons/ri';
+import { ConfirmModal } from '@/components/ui/ConfirmModal';
+import { TextType } from '@shared/types';
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -12,6 +14,7 @@ export default function DashboardPage() {
   
   const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState({ title: '', content: '' });
+  const [textToDelete, setTextToDelete] = useState<TextType | null>(null);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,11 +28,21 @@ export default function DashboardPage() {
     }
   };
 
-  const handleDelete = (textId: string) => {
-    if (confirm('Êtes-vous sûr de vouloir supprimer ce texte ?')) {
-      deleteText(textId);
+  // ✅ Handler stabilisé avec useCallback
+  const handleDeleteClick = useCallback((text: TextType) => {
+    setTextToDelete(text);
+  }, []);
+
+  const handleConfirmDelete = useCallback(() => {
+    if (textToDelete) {
+      deleteText(textToDelete.id);
+      setTextToDelete(null);
     }
-  };
+  }, [textToDelete, deleteText]);
+
+  const handleCancelDelete = useCallback(() => {
+    setTextToDelete(null);
+  }, []);
 
   return (
     <div className="min-h-screen bg-gray-50 p-8">
@@ -153,9 +166,9 @@ export default function DashboardPage() {
                       <h3 className="font-medium text-gray-900">{text.title}</h3>
                       <div className="flex gap-2">
                         <button
-                          onClick={() => handleDelete(text.id)}
+                          onClick={() => handleDeleteClick(text)}
                           disabled={isDeleting}
-                          className="text-red-600 hover:text-red-800 p-1"
+                          className="text-red-600 hover:text-red-800 p-1 transition-colors disabled:opacity-50"
                           title="Supprimer"
                         >
                           <RiDeleteBinLine className="w-4 h-4" />
@@ -173,6 +186,23 @@ export default function DashboardPage() {
           </div>
         </div>
       </div>
+
+      {/* Modale de confirmation de suppression */}
+      <ConfirmModal
+        isOpen={textToDelete !== null}
+        title="Supprimer le texte"
+        message={
+          textToDelete
+            ? `Êtes-vous sûr de vouloir supprimer "${textToDelete.title || 'ce texte'}" ? Cette action est irréversible.`
+            : ''
+        }
+        confirmText="Supprimer"
+        cancelText="Annuler"
+        onConfirm={handleConfirmDelete}
+        onCancel={handleCancelDelete}
+        variant="danger"
+        isLoading={isDeleting}
+      />
     </div>
   );
 } 
