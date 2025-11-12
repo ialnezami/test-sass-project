@@ -54,22 +54,22 @@ Faire fonctionner le projet existant et créer un service de commentaires comple
 
 **Fichier : `server/src/services/textService.ts`**
 
-- [ ] **Vérifier validation cascade** : S'assurer que les 7 étapes sont respectées
+- [x] **Vérifier validation cascade** : S'assurer que les 7 étapes sont respectées
   1. ✅ Validation auth (`validateAuth`)
   2. ✅ Validation params (`validateRequiredFields`)
   3. ✅ Validation workspace (`verifyWorkspaceToken`)
-  4. ✅ Validation métier (à créer séparément)
+  4. ✅ Validation métier (créée séparément)
   5. ✅ Logique métier
   6. ✅ Logging succès
   7. ✅ Réponse standardisée
-- [ ] **Créer validation métier séparée** :
-  - [ ] Créer `server/src/utils/validation/textValidation.ts`
-  - [ ] Implémenter `validateTextData(data: CreateTextType): TextValidationResult`
-  - [ ] Implémenter `validateTextUpdate(existingText: TextType, updateData: Partial<TextType>): TextValidationResult`
-  - [ ] Suivre le pattern de `docs/VALIDATION_PATTERN_EXAMPLE.md`
-- [ ] **Utiliser types partagés** : Importer depuis `shared/types.ts`
-- [ ] **Secrets Firebase** : Vérifier que les secrets sont configurés si nécessaire
-- [ ] **Logging structuré** : Utiliser `logger.info()` et `logger.error()`
+- [x] **Créer validation métier séparée** :
+  - [x] Créer `server/src/utils/validation/textValidation.ts`
+  - [x] Implémenter `validateTextData(data: CreateTextType): TextValidationResult`
+  - [x] Implémenter `validateTextUpdate(existingText: TextType, updateData: Partial<TextType>): TextValidationResult`
+  - [x] Suivre le pattern de `docs/VALIDATION_PATTERN_EXAMPLE.md`
+- [x] **Utiliser types partagés** : Importer depuis `shared/types.ts` (`CreateTextType`, `WORKSPACE_ROLES`)
+- [x] **Secrets Firebase** : Configuration optionnelle pour version demo (pas de secrets requis pour le test)
+- [x] **Logging structuré** : Utiliser `logger.info()` et `logger.error()` avec objets structurés
 
 ### 1.3 Communication Client-Serveur
 

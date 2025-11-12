@@ -4,7 +4,9 @@ import { validateAuth, verifyWorkspaceToken, isValidWorkspaceToken } from '../ut
 import { validateRequiredFields, isSuccess, handleError } from '../utils/validation.js';
 import { createResponseWithTokens } from '../../shared/responses.js';
 import { getTextRepository } from '../../db/repositories/index.js';
-import { WORKSPACE_ROLES } from '../../../shared/types.js';
+import { WORKSPACE_ROLES, CreateTextType } from '../../../shared/types.js';
+import { validateTextData } from '../utils/validation/textValidation.js';
+import { ERRORS, withDetails } from '../../shared/types/errors.js';
 
 /**
  * Service de gestion des textes
@@ -42,16 +44,18 @@ export const createText = onCall({
     const { workspace_id, workspace_tokens } = validationResult;
     const response = createResponseWithTokens(workspace_tokens);
 
-    // ✅ 4. Validation métier spécifique
-    if (content.length > 1000) {
-      return response.error({
-        code: 'INVALID_INPUT',
-        message: 'Le contenu ne peut pas dépasser 1000 caractères'
-      });
+    // ✅ 4. Validation métier séparée
+    const textValidation = validateTextData({ title, content });
+    if (!textValidation.valid) {
+      return response.error(withDetails(ERRORS.INVALID_INPUT, {
+        message: textValidation.errors.join(', '),
+        errors: textValidation.errors,
+        warnings: textValidation.warnings
+      }));
     }
 
     // ✅ 5. Logique métier via repository
-    const textData = {
+    const textData: CreateTextType = {
       content: content.trim(),
       title: title?.trim() || 'Sans titre',
       created_by: uid
@@ -59,14 +63,26 @@ export const createText = onCall({
     
     const newText = await getTextRepository().create(workspace_id, textData);
 
-    // ✅ 6. Logging succès
-    logger.info(`Texte créé avec succès pour workspace ${workspace_id} par ${uid}`);
+    // ✅ 6. Logging succès structuré
+    logger.info('Texte créé avec succès', {
+      workspace_id,
+      user_id: uid,
+      text_id: newText.id,
+      action: 'create_text'
+    });
 
     // ✅ 7. Réponse standardisée
     return response.success({ text: newText });
     
   } catch (error) {
-    logger.error(`Erreur dans createText:`, error);
+    logger.error('Erreur dans createText', {
+      error: error instanceof Error ? error.message : 'Erreur inconnue',
+      stack: error instanceof Error ? error.stack : undefined,
+      context: {
+        workspace_id: request.data?.workspaceToken ? 'present' : 'missing',
+        has_content: !!request.data?.content
+      }
+    });
     return handleError(error);
   }
 });
@@ -105,14 +121,25 @@ export const getTexts = onCall({
     // ✅ 5. Logique métier via repository
     const texts = await getTextRepository().getByWorkspace(workspace_id);
 
-    // ✅ 6. Logging succès
-    logger.info(`Textes récupérés pour workspace ${workspace_id} par ${uid}`);
+    // ✅ 6. Logging succès structuré
+    logger.info('Textes récupérés avec succès', {
+      workspace_id,
+      user_id: uid,
+      count: texts.length,
+      action: 'get_texts'
+    });
 
     // ✅ 7. Réponse standardisée
     return response.success({ texts });
     
   } catch (error) {
-    logger.error(`Erreur dans getTexts:`, error);
+    logger.error('Erreur dans getTexts', {
+      error: error instanceof Error ? error.message : 'Erreur inconnue',
+      stack: error instanceof Error ? error.stack : undefined,
+      context: {
+        workspace_id: request.data?.workspaceToken ? 'present' : 'missing'
+      }
+    });
     return handleError(error);
   }
 });
@@ -152,20 +179,31 @@ export const deleteText = onCall({
     const deleted = await getTextRepository().delete(textId, workspace_id);
     
     if (!deleted) {
-      return response.error({
-        code: 'NOT_FOUND',
+      return response.error(withDetails(ERRORS.NOT_FOUND, {
         message: 'Texte non trouvé'
-      });
+      }));
     }
 
-    // ✅ 6. Logging succès
-    logger.info(`Texte ${textId} supprimé pour workspace ${workspace_id} par ${uid}`);
+    // ✅ 6. Logging succès structuré
+    logger.info('Texte supprimé avec succès', {
+      workspace_id,
+      user_id: uid,
+      text_id: textId,
+      action: 'delete_text'
+    });
 
     // ✅ 7. Réponse standardisée
     return response.success({ deleted: true });
     
   } catch (error) {
-    logger.error(`Erreur dans deleteText:`, error);
+    logger.error('Erreur dans deleteText', {
+      error: error instanceof Error ? error.message : 'Erreur inconnue',
+      stack: error instanceof Error ? error.stack : undefined,
+      context: {
+        workspace_id: request.data?.workspaceToken ? 'present' : 'missing',
+        text_id: request.data?.textId
+      }
+    });
     return handleError(error);
   }
 });
