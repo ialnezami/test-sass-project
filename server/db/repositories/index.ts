@@ -9,10 +9,10 @@ import { SessionRepository } from './sessionRepository';
 import { WorkspaceDocumentRepository } from './workspaceDocumentRepository';
 import { WorkspaceInvitationRepository } from './workspaceInvitationRepository';
 import { WorkspaceRepository } from './workspaceRepository';
-import { ReplyCommentRepository } from './replyCommentRepository.js';
+import { ReplyCommentRepository } from './replyCommentRepository';
 import { LeadRepository } from './leadRepository';
 import { InboxStatesRepository } from './inboxStatesRepository';
-import { TextRepository } from './textRepository.js';
+import { TextRepository } from './textRepository';
 
 // Singleton instances - on les déclare comme undefined pour éviter l'initialisation au build
 let automationDiscussionRepo: AutomationDiscussionRepository | undefined;
